@@ -65,7 +65,6 @@ class Receive(threading.Thread):
             message = self.sock.recv(1024).decode('ascii')
 
             if message:
-
                 if self.messages:
                     self.messages.insert(tk.END, message)
                     print('hi')
@@ -92,11 +91,11 @@ class Client:
         name (str): The username of the client.
         messages (tk.Listbox): The tk.Listbox object containing all messages displayed on the GUI.
     """
-    def __init__(self, host, port):
+    def __init__(self, host, port, name):
         self.host = host
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.name = None
+        self.name = name
         self.messages = None
     
     def start(self):
@@ -111,7 +110,6 @@ class Client:
         print('Successfully connected to {}:{}'.format(self.host, self.port))
         
         print()
-        self.name = input('Your name: ')
 
         print()
         print('Welcome, {}! Getting ready to send and receive messages...'.format(self.name))
@@ -155,19 +153,20 @@ class Client:
             self.sock.sendall('{}: {}'.format(self.name, message).encode('ascii'))
 
 
-def main(host, port):
+def main(host, port, name_client, tkWindow):
     """
     Initializes and runs the GUI application.
     Args:
         host (str): The IP address of the server's listening socket.
         port (int): The port number of the server's listening socket.
     """
-    client = Client(host, port)
+    client = Client(host, port, name_client)
     receive = client.start()
 
-    window = tk.Tk()
+    #window = tkWindow
+    window = tk.Tk()   
     window.title('INSAT_chat')
-
+    print("nameeeeee", name_client)
     frm_messages = tk.Frame(master=window)
     scrollbar = tk.Scrollbar(master=frm_messages)
     messages = tk.Listbox(
@@ -198,18 +197,8 @@ def main(host, port):
     btn_send.grid(row=1, column=1, pady=10, sticky="ew")
 
     window.rowconfigure(0, minsize=500, weight=1)
-    window.rowconfigure(1, minsize=50, weight=0)
+    window.rowconfigure(1, minsize=200, weight=0)
     window.columnconfigure(0, minsize=500, weight=1)
     window.columnconfigure(1, minsize=200, weight=0)
 
     window.mainloop()
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Chatroom Server')
-    parser.add_argument('host', help='Interface the server listens at')
-    parser.add_argument('-p', metavar='PORT', type=int, default=1060,
-                        help='TCP port (default 1060)')
-    args = parser.parse_args()
-
-    main(args.host, args.p)
