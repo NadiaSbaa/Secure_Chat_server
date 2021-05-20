@@ -94,6 +94,7 @@ class ServerSocket(threading.Thread):
         while True:
             message = self.sc.recv(1024).decode('ascii')
             if message:
+                
                 print('{} says {!r}'.format(self.sockname, message))
                 self.server.broadcast(message, self.sockname)
             else:
@@ -127,16 +128,10 @@ def exit(server):
             os._exit(0)
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Chatroom Server')
-    parser.add_argument('host', help='Interface the server listens at')
-    parser.add_argument('-p', metavar='PORT', type=int, default=1060,
-                        help='TCP port (default 1060)')
-    args = parser.parse_args()
 
+def server_chat(host, p):
     # Create and start server thread
-    server = Server(args.host, args.p)
+    server = Server(host, p)
     server.start()
-
-    exit = threading.Thread(target = exit, args = (server,))
-    exit.start()
+    #exit = threading.Thread(target = exit, args = (server,))
+    #exit.start()

@@ -2,6 +2,7 @@ import socket
 import tkinter as tk
 from functools import partial
 from tkinter import ttk
+from client_connection import client_connect
 
 ClientSocket = socket.socket()
 host = '127.0.0.1'
@@ -15,22 +16,20 @@ except socket.error as e:
 
 Response = ClientSocket.recv(1024)
 
-def popup_window(title, type, message, button):
+def popup_window(title, message, button):
     win = tk.Toplevel()
     win.wm_title(title)
 
-    l = tk.Label(win, text=type)
-    l.grid(row=0, column=0)
 
     l = tk.Label(win, text=message)
-    l.grid(row=1, column=1)
+    l.grid(row=0, column=0)
 
     b = ttk.Button(win, text=button, command=win.destroy)
-    b.grid(row=2, column=1)
+    b.grid(row=1, column=1)
 
-    for i in range(0,3):
-        win.rowconfigure(i, minsize=50, weight=1)
-        win.columnconfigure(i, minsize=50, weight=1)
+    for i in range(0,2):
+        win.rowconfigure(i, minsize=100, weight=1)
+        win.columnconfigure(i, minsize=100, weight=1)
 
 def clear_inputs(carteidEntry, firstnameEntry, lastnameEntry, loginEntry, passwordEntry):
     carteidEntry.delete(0, tk.END)
@@ -39,13 +38,14 @@ def clear_inputs(carteidEntry, firstnameEntry, lastnameEntry, loginEntry, passwo
     loginEntry.delete(0, tk.END)
     passwordEntry.delete(0, tk.END)
 
-def signup(carteid, firstname, lastname, login, password):
+def signup(carteid, firstname, lastname, login, password, win):
     res = "Ins|" + carteid.get() + "|" + firstname.get() + "|" + lastname.get() + "|" + login.get() + "|" + password.get()
     ClientSocket.send(str.encode(res))
     Response = ClientSocket.recv(1024)
     print(Response.decode('utf-8'))
-    popup_window("Save Certificate", "Generated Certicate :", Response.decode('utf-8'), "Saved")
+    popup_window("INSAT_Chat Notification", Response.decode('utf-8'), "Got it!")
     clear_inputs(carteidEntry, firstnameEntry, lastnameEntry, loginEntry, passwordEntry)
+    client_connect()
     return
 #window
 tkWindow = tk.Tk()
@@ -92,10 +92,10 @@ password = tk.StringVar()
 passwordEntry = tk.Entry(tkWindow, textvariable=password, show='*')
 passwordEntry.grid(row=4, column=1)  
 
-signup = partial(signup, carteid, firstname, lastname, login, password)
+signup = partial(signup, carteid, firstname, lastname, login, password, tkWindow)
 
 #login button
-loginButton = tk.Button(tkWindow, text="Certification Request", command=signup)
+loginButton = tk.Button(tkWindow, text="Sign up", command=signup)
 loginButton.grid(row=5, column=1) 
 
 for i in range(0,6):
