@@ -8,7 +8,7 @@ import json
 
 def send_create_request_certif(name, password, ClientSocket, tkWindow):
     host = '127.0.0.1'
-    port = 1233
+    port = 1060
     req = "Req|" + name + "|" + password
     ClientSocket.send(str.encode(req))
     Response = ClientSocket.recv(1024)
@@ -30,6 +30,9 @@ def popup_window_request_certif(title, message, button, name, password, ClientSo
     for i in range(0,2):
         win.rowconfigure(i, minsize=100, weight=1)
         win.columnconfigure(i, minsize=100, weight=1)
+
+
+
 
 def popup_window(title, message, button):
     win = tk.Toplevel()
@@ -77,20 +80,23 @@ def client_connect():
     except socket.error as e:
         print(str(e))
 
-    Response = ClientSocket.recv(1024)
+    #Response = ClientSocket.recv(1024)
+    
 
     def validateLogin(login, password, tkWindow):
         res = "Con|" + login.get() + "|" + password.get()
+        print("signup ", res, str.encode(res))
         ClientSocket.send(str.encode(res))
         Response = ClientSocket.recv(1024)
         if (Response.decode('utf-8') == "ClientAndCertified"):
+            tkWindow.destroy()
             main("127.0.0.1", 1060, login.get(), tkWindow)
         if (Response.decode('utf-8') == "NotClient"):
             print("No you are not a client")
             popup_window("INSAT_Chat Notification", "Check your credentials", "Got it!")
             clear_inputs(loginEntry, passwordEntry)
         if (Response.decode('utf-8') == "ClientAndNotCertified"):
-            print("You are a client but you are not certified")
+            print("You are not certified or your certification has expired!")
             popup_window_create_request_for_certif(login.get(),password.get(),"INSAT_Chat Notification", "Certificate is needed if you want to join the INSAT_Chat", "Request Certificate!", ClientSocket)
 
   
@@ -99,6 +105,8 @@ def client_connect():
     #window
     tkWindow = tk.Tk()   
     tkWindow.title('Sign in INSAT_chat')
+    WIDTH, HEIGTH = 400, 500
+    tkWindow.geometry('{}x{}'.format(WIDTH, HEIGTH))
 
     #username label
     loginLabel = tk.Label(tkWindow, text="Login")
@@ -123,8 +131,8 @@ def client_connect():
     loginButton.grid(row=3, column=1) 
     
     for i in range(0,4):
-        tkWindow.rowconfigure(i, minsize=50, weight=1)
-        tkWindow.columnconfigure(i, minsize=50, weight=1)
+        tkWindow.rowconfigure(i, minsize=30, weight=1)
+        tkWindow.columnconfigure(i, minsize=30, weight=1)
 
     tkWindow.mainloop()
     ClientSocket.close()

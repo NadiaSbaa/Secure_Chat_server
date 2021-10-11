@@ -2,7 +2,6 @@ import socket
 import tkinter as tk
 from functools import partial
 from tkinter import ttk
-from client_connection import client_connect
 
 ClientSocket = socket.socket()
 host = '127.0.0.1'
@@ -14,7 +13,7 @@ try:
 except socket.error as e:
     print(str(e))
 
-Response = ClientSocket.recv(1024)
+#Response = ClientSocket.recv(1024)
 
 def popup_window(title, message, button):
     win = tk.Toplevel()
@@ -45,7 +44,6 @@ def signup(carteid, firstname, lastname, login, password, win):
     print(Response.decode('utf-8'))
     popup_window("INSAT_Chat Notification", Response.decode('utf-8'), "Got it!")
     clear_inputs(carteidEntry, firstnameEntry, lastnameEntry, loginEntry, passwordEntry)
-    client_connect()
     return
 #window
 tkWindow = tk.Tk()

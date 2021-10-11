@@ -2,7 +2,10 @@ import threading
 import socket
 import argparse
 import os
-
+from hashlib import sha256
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_v1_5 as INSAT_PKI
+import base64
 
 class Server(threading.Thread):
     """
@@ -17,6 +20,7 @@ class Server(threading.Thread):
         self.connections = []
         self.host = host
         self.port = port
+        self.clients_connected = []
     
     def run(self):
         """
@@ -49,7 +53,17 @@ class Server(threading.Thread):
             self.connections.append(server_socket)
             print('Ready to receive messages from', sc.getpeername())
 
-    def broadcast(self, message, source):
+
+    def encrypt(self, message, origin):
+            filename = '../Client/keys/' + str(origin)
+            f = open(filename + '.cert','r')
+            key = RSA.import_key(f.read())
+            cipher = INSAT_PKI.new(key)
+            ciphertext = cipher.encrypt(message.encode('utf8'))
+            encrypted = base64.b64encode(ciphertext).decode('ascii')
+            return encrypted
+
+    def broadcast(self, message, source, origineName):
         """
         Sends a message to all connected clients, except the source of the message.
         Args:
@@ -57,10 +71,11 @@ class Server(threading.Thread):
             source (tuple): The socket address of the source client.
         """
         for connection in self.connections:
-
             # Send to all connected clients except the source client
             if connection.sockname != source:
-                connection.send(message)
+                #Decryption
+                m = self.encrypt(message, connection.origin)
+                connection.send(m)
     
     def remove_connection(self, connection):
         """
@@ -84,6 +99,7 @@ class ServerSocket(threading.Thread):
         self.sc = sc
         self.sockname = sockname
         self.server = server
+        self.origin = ''
     
     def run(self):
         """
@@ -94,14 +110,17 @@ class ServerSocket(threading.Thread):
         while True:
             message = self.sc.recv(1024).decode('ascii')
             if message:
-                
+                informations = message.split(':')
+                self.server.clients_connected.append(informations[0])
+                self.server.clients_connected = list(set(self.server.clients_connected))
+                self.origin = informations[0]
                 print('{} says {!r}'.format(self.sockname, message))
-                self.server.broadcast(message, self.sockname)
+                self.server.broadcast(message, self.sockname, informations[0])
             else:
                 # Client has closed the socket, exit the thread
                 print('{} has closed the connection'.format(self.sockname))
                 self.sc.close()
-                server.remove_connection(self)
+                self.server.remove_connection(self)
                 return
     
     def send(self, message):
@@ -113,7 +132,7 @@ class ServerSocket(threading.Thread):
         self.sc.sendall(message.encode('ascii'))
 
 
-def exit(server):
+def exitt(server):
     """
     Allows the server administrator to shut down the server.
     Typing 'q' in the command line will close all active connections and exit the application.
@@ -133,5 +152,5 @@ def server_chat(host, p):
     # Create and start server thread
     server = Server(host, p)
     server.start()
-    #exit = threading.Thread(target = exit, args = (server,))
-    #exit.start()
+    exit = threading.Thread(target = exitt, args = (server,))
+    exit.start()
