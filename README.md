@@ -23,3 +23,6 @@ python client_inscription.py
 <h4> 3/ Connexion client: </h4>
 cd Client <br>
 python welcomeClientConnexion.py
+
+<h2>Interface: </h2>
+<img src="images/insat2.png" width="700" alt="demo_4">
