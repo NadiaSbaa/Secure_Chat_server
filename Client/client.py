@@ -164,7 +164,7 @@ class Client:
 
         # Type 'QUIT' to leave the chatroom
         if message == 'QUIT':
-            m = 'Server: ' + str(self.name)+ ' has left the chat.'
+            m = str(self.name) + ': ' + str(self.name)+ ' has left the chat.'
             self.sock.sendall(m.encode('ascii'))
             
             print('\nQuitting...')

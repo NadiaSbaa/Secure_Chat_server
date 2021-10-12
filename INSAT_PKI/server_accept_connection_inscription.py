@@ -76,7 +76,7 @@ def threaded_client(connection):
         #We check them
         #We send the certificate
         informations = data.decode('utf-8').split('|')
-        res = ""
+        resp = ""
         if len(informations) > 0:
             #Inscription
             if informations[0] == "Ins":
@@ -117,6 +117,7 @@ def threaded_client(connection):
                 password = sha256(informations[2].encode('utf_8')).hexdigest()
                 add_certif_to_client(informations[1], password, "exists", "exists")
                 resp = "ClientAndCertified"
+                server_chat("127.0.0.1", 1060)
 
         else:
             resp = ""
@@ -139,7 +140,7 @@ def accept_connexion():
     print('Waitiing for a Connection..')
     ServerSocket.listen(5)
 
-    while (ThreadCount < 4):
+    while (ThreadCount < 10):
         Client, address = ServerSocket.accept()
         print('Connected to: ' + address[0] + ':' + str(address[1]))
         list_clients()

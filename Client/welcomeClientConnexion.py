@@ -18,7 +18,7 @@ canvas.background = img
 bg = canvas.create_image(0, 0, anchor=tk.NW, image=img)
 
 
-screen.after(3000, screen.destroy)
+screen.after(4500, screen.destroy)
 screen.mainloop()
 if True:
    import client_connection

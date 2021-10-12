@@ -8,7 +8,7 @@ import json
 
 def send_create_request_certif(name, password, ClientSocket, tkWindow):
     host = '127.0.0.1'
-    port = 1233
+    port = 1060
     req = "Req|" + name + "|" + password
     ClientSocket.send(str.encode(req))
     Response = ClientSocket.recv(1024)
